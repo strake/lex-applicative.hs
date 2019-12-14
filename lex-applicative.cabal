@@ -52,7 +52,8 @@ library
   import:              c
   hs-source-dirs:      src
   exposed-modules:     Text.Regex.Applicative.Lex
-  build-depends:       regex-applicative ^>= 0.3.3
+  build-depends:       parser-combinators ^>= 1.2
+                     , regex-applicative ^>= 0.3.3
                      , text ^>= 1.2.3
                      , ucd ^>= 0.0.1
                      , unicode-transforms ^>= 0.3.6
