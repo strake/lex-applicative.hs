@@ -7,6 +7,7 @@ import           Control.Applicative
 import           Control.Monad.Free (Free (..))
 import qualified Data.Char as Char
 import           Data.Semigroup (Min (..), Max (..))
+import qualified Data.TextPos as Text
 import           Text.Regex.Applicative (RE, findLongestPrefixWithUncons)
 import qualified Text.Regex.Applicative as RE
 import           Util
@@ -19,13 +20,13 @@ data LexerSpec p x t = LexerSpec
   , init :: p
   }
 
-defaultLexerSpec :: Num n => LexerSpec n Char t
+defaultLexerSpec :: LexerSpec Text.Pos Char t
 defaultLexerSpec = LexerSpec
   { token = empty
   , space = () <$ many (RE.psym Char.isSpace)
   , blockComment = empty
-  , move = pure (+1)
-  , init = 0
+  , move = Text.move
+  , init = Text.Pos 0 1 0
   }
 
 lex :: LexerSpec p x t -> [x] -> Free ((,,) (Min p, Max p) t) (Maybe (Error p))
