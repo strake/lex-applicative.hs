@@ -51,8 +51,10 @@ common c
 library
   import:              c
   hs-source-dirs:      src
-  exposed-modules:     Text.Regex.Applicative.Lex
-  build-depends:       parser-combinators ^>= 1.2
+  exposed-modules:     Text.Lexer
+                     , Text.Regex.Applicative.Lex
+  build-depends:       hs-functors ^>= 0.1.4
+                     , parser-combinators ^>= 1.2
                      , regex-applicative ^>= 0.3.3
                      , text ^>= 1.2.3
                      , ucd ^>= 0.0.1
