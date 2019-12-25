@@ -54,7 +54,9 @@ library
   exposed-modules:     Data.TextPos
                      , Text.Lexer
                      , Text.Regex.Applicative.Lex
-  build-depends:       hs-functors ^>= 0.1.4
+  other-modules:       Util.Private
+  build-depends:       dlist ^>= 0.8.0.7
+                     , hs-functors ^>= 0.1.4
                      , parser-combinators ^>= 1.2
                      , regex-applicative ^>= 0.3.3
                      , text ^>= 1.2.3

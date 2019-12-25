@@ -8,7 +8,7 @@ import           Control.Monad.Free (Free (..))
 import qualified Data.Char as Char
 import           Data.Semigroup (Min (..), Max (..))
 import qualified Data.TextPos as Text
-import           Text.Regex.Applicative (RE, findLongestPrefixWithUncons)
+import           Text.Regex.Applicative (RE, findLongestPrefixWithUncons, reFoldl)
 import qualified Text.Regex.Applicative as RE
 import           Util
 
@@ -23,7 +23,7 @@ data LexerSpec p x t = LexerSpec
 defaultLexerSpec :: LexerSpec Text.Pos Char t
 defaultLexerSpec = LexerSpec
   { token = empty
-  , space = () <$ many (RE.psym Char.isSpace)
+  , space = () <$ RE.psym Char.isSpace
   , blockComment = empty
   , move = Text.move
   , init = Text.Pos 0 1 0
@@ -32,7 +32,7 @@ defaultLexerSpec = LexerSpec
 lex :: LexerSpec p x t -> [x] -> Free ((,,) (Min p, Max p) t) (Maybe (Error p))
 lex LexerSpec {..} = go' [] . annotate move init
   where
-    go bs = stripLongestPrefixWithUncons stripAnnotation (many space) & go' bs
+    go bs = stripLongestPrefixWithUncons stripAnnotation (reFoldl RE.Greedy pure () space) & go' bs
     go' bs' xs@(AList p l) = case (bs', l) of
         ([], Nothing) -> Pure Nothing
         (_,  Nothing) -> Pure (Just (Error p))
@@ -62,4 +62,4 @@ newtype Error p = Error { errorPos :: p }
   deriving (Eq, Ord, Read, Show)
 
 stripLongestPrefixWithUncons :: (xs -> Maybe (x, xs)) -> RE x a -> xs -> xs
-stripLongestPrefixWithUncons uncons re = flip maybe snd <*> findLongestPrefixWithUncons uncons re
+stripLongestPrefixWithUncons uncons re = flip maybe snd <*> findLongestPrefixWithUncons uncons (() <$ re)

@@ -5,15 +5,17 @@ module Text.Regex.Applicative.Lex (natural', natural, ident', ident, IdentSpec (
 import           Control.Applicative.Combinators (between, count')
 import           Control.Monad ((>=>), guard, replicateM)
 import qualified Data.Char.Properties.DerivedCore as UC
+import qualified Data.DList as DList
 import           Data.Foldable
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Normalize as T
 import           Numeric.Natural
-import           Text.Regex.Applicative hiding (string)
+import           Text.Regex.Applicative hiding (string, some, many)
 import qualified Text.Regex.Applicative as RE
 import           Util hiding (some)
+import           Util.Private
 
 natural' :: RE Char Natural
 natural' = asum
@@ -40,14 +42,12 @@ ident' :: RE Char Text
 ident' = ident defaultIdentSpec
 
 ident :: IdentSpec -> RE Char Text
-ident IdentSpec {..} = normalize . T.pack <$> start <:> many cont <++> (fmap asum . many) (med <:> some cont)
+ident IdentSpec {..} = normalize . T.pack . DList.toList <$>
+    start <:> many cont <++> (fmap asum . RE.many) (med <:> some cont)
   where
     start = psym isStart
     cont = psym isContinue
     med = psym isMedial
-    infixr 5 <:>, <++>
-    (<:>) = liftA2 (:)
-    (<++>) = liftA2 (++)
 
 data IdentSpec = IdentSpec
   { isStart, isContinue, isMedial :: Char -> Bool
@@ -70,7 +70,7 @@ defaultIdentSpec = IdentSpec
         x       -> x
 
 string :: RE Char TL.Text
-string = TL.pack <$> between (sym '"') (sym '"') (many xre)
+string = TL.pack . DList.toList <$> between (sym '"') (sym '"') (many xre)
   where xre = psym (∉ "\"\\") <|> sym '\\' *> (psym (∈ "\"\\") <|> esc)
 
 esc :: RE Char Char
