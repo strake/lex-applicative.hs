@@ -1,6 +1,6 @@
 cabal-version:       3.0
 name:                lex-applicative
-version:             0.0.0.0
+version:             0.0.0.1
 synopsis:            See README for more info
 description:         See README for more info
 homepage:            https://github.com/strake/lex-applicative.hs
